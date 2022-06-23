@@ -67,7 +67,10 @@ try:
         # Show images:
         cv2.imshow("depth frame", depth_colormap)
         cv2.imshow("rgb frame", rgb_image)
-        cv2.waitKey(1)
+        
+        key = cv2.waitKey(1)
+        if key == 27: #key 27 is ESC button on keyboard
+            break
 
 finally:
     pipeline.stop() #stop the stream
