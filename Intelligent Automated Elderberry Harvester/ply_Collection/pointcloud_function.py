@@ -8,11 +8,11 @@ def pointcloud(state, out, verts, texcoords, color, painter=True):
 
         # get reverse sorted indices by z (in view-space)
         # https://gist.github.com/stevenvo/e3dad127598842459b68
-        v = projection_functions.view(verts, state)
+        v = projection_functions.view(state, verts)
         s = v[:, 2].argsort()[::-1]
         proj = projection_functions.project(v[s], out)
     else:
-        proj = projection_functions.project(projection_functions.view(verts, state), out)
+        proj = projection_functions.project(projection_functions.view(state, verts), out)
 
     if state.scale:
         proj *= 0.5**state.decimate

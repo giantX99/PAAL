@@ -5,7 +5,7 @@ import numpy as np
 class AppState:
 
     def __init__(self, *args, **kwargs):
-        self.WIN_NAME = 'RealSense'
+        self.WIN_NAME = 'PointCloud Stream'
         self.pitch, self.yaw = math.radians(-10), math.radians(-15)
         self.translation = np.array([0, 0, -1], dtype=np.float32)
         self.distance = 2

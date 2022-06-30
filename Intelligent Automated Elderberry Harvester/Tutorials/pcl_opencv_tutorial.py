@@ -357,7 +357,7 @@ while True:
         cv2.imwrite('./out.png', out)
 
     if key == ord("e"):
-        points.export_to_ply('test.ply', mapped_frame)
+        points.export_to_ply('test_tutorial_2.ply', mapped_frame)
 
     if key in (27, ord("q")) or cv2.getWindowProperty(state.WIN_NAME, cv2.WND_PROP_AUTOSIZE) < 0:
         break

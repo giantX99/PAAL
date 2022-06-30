@@ -1,36 +1,28 @@
-# License: Apache 2.0. See LICENSE file in root directory.
-# Copyright(c) 2015-2017 Intel Corporation. All Rights Reserved.
-
 """
 OpenCV and Numpy Point cloud Software Renderer
-This sample is mostly for demonstration and educational purposes.
-It really doesn't offer the quality or performance that can be
-achieved with hardware acceleration.
 Usage:
+The moment the stream start, the program will be saving
+the pointcloud in .ply format every x amount of seconds.
 ------
 Mouse: 
     Drag with left button to rotate around pivot (thick small axes), 
     with right button to translate and the wheel to zoom.
 Keyboard: 
     [r]     Reset View
-    [d]     Cycle through decimation values
-    [z]     Toggle point scaling
-    [c]     Toggle color source
-    [e]     Export points to ply (./out.ply)
+    [p]     Pause Stream
     [q\ESC] Quit
 """
-
-import time
+import sys
+import math
 import cv2
 import numpy as np
 import pyrealsense2 as rs
 import AppState
-import mouse_cb
 import projection_functions
 import pointcloud_function
 
 
-state = AppState()
+state = AppState.AppState()
 
 # Configure depth and color streams
 pipeline = rs.pipeline()
@@ -59,15 +51,72 @@ decimate = rs.decimation_filter()
 decimate.set_option(rs.option.filter_magnitude, 2 ** state.decimate)
 colorizer = rs.colorizer()
 
-
-
-cv2.namedWindow(state.WIN_NAME, cv2.WINDOW_AUTOSIZE)
-cv2.resizeWindow(state.WIN_NAME, w, h)
-cv2.setMouseCallback(state.WIN_NAME, mouse_cb.mouse_cb(state, w, h))
-
+# Creates an empty array with dimensions (h, w, 3) 3 for rgb values I imagine
 out = np.empty((h, w, 3), dtype=np.uint8)
 
+# Mouse event funtion
+def mouse_cb(event, x, y, flags, param):
 
+    if event == cv2.EVENT_LBUTTONDOWN:
+        state.mouse_btns[0] = True
+
+    if event == cv2.EVENT_LBUTTONUP:
+        state.mouse_btns[0] = False
+
+    if event == cv2.EVENT_RBUTTONDOWN:
+        state.mouse_btns[1] = True
+
+    if event == cv2.EVENT_RBUTTONUP:
+        state.mouse_btns[1] = False
+
+    if event == cv2.EVENT_MBUTTONDOWN:
+        state.mouse_btns[2] = True
+
+    if event == cv2.EVENT_MBUTTONUP:
+        state.mouse_btns[2] = False
+
+    if event == cv2.EVENT_MOUSEMOVE:
+
+        height_intr, width_intr = out.shape[:2]
+        dx, dy = x - state.prev_mouse[0], y - state.prev_mouse[1]
+
+        if state.mouse_btns[0]:
+            state.yaw += float(dx) / width_intr * 2
+            state.pitch -= float(dy) / height_intr * 2
+
+        elif state.mouse_btns[1]:
+            dp = np.array((dx / width_intr, dy / height_intr, 0), dtype=np.float32)
+            state.translation -= np.dot(state.rotation, dp)
+
+        elif state.mouse_btns[2]:
+            dz = math.sqrt(dx**2 + dy**2) * math.copysign(0.01, -dy)
+            state.translation[2] += dz
+            state.distance -= dz
+
+    if event == cv2.EVENT_MOUSEWHEEL:
+        dz = math.copysign(0.1, flags)
+        state.translation[2] += dz
+        state.distance -= dz
+
+    state.prev_mouse = (x, y)
+# End mouse function 
+
+# User input to proceed
+rate_of_saving = 30
+choice = input('Press ENTER to proceed with the PointCloud Export (rate is 1 ply every %dsec).\nOr press "q" to exit.' %(rate_of_saving/30))
+if choice == 'q':
+    sys.exit()
+print('System running, press "p" to pause or "q" or ESC key to exit.') 
+
+# Creates window and point cloud visualization 
+cv2.namedWindow(state.WIN_NAME, cv2.WINDOW_AUTOSIZE)
+cv2.resizeWindow(state.WIN_NAME, w, h)
+cv2.setMouseCallback(state.WIN_NAME, mouse_cb)
+
+# saving pointcloud variables
+num_frames = 1
+ply_file_path = 'C:/Users/gian-/OneDrive/Documentos/PAAL/data/ply/'
+ply_file_name = 'ply_data_{}.ply'
 
 while True:
     # Grab camera data
@@ -105,13 +154,12 @@ while True:
         texcoords = np.asanyarray(t).view(np.float32).reshape(-1, 2)  # uv
 
     # Render
-    now = time.time()
 
     out.fill(0)
 
-    projection_functions.grid(out, (0, 0.5, 1), size=1, n=10)
-    projection_functions.frustum(out, depth_intrinsics)
-    projection_functions.axes(out, projection_functions.view([0, 0, 0], state), state.rotation, size=0.1, thickness=1)
+    projection_functions.grid(state, out, (0, 0.5, 1), size=1, n=10)
+    projection_functions.frustum(state, out, depth_intrinsics)
+    projection_functions.axes(out, projection_functions.view(state, [0, 0, 0]), state.rotation, size=0.1, thickness=1)
 
     if not state.scale or out.shape[:2] == (h, w):
         pointcloud_function.pointcloud(state, out, verts, texcoords, color_source)
@@ -123,32 +171,25 @@ while True:
         np.putmask(out, tmp > 0, tmp)
 
     if any(state.mouse_btns):
-        projection_functions.axes(out, projection_functions.view(state.pivot, state), state.rotation, thickness=4)
+        projection_functions.axes(out, projection_functions.view(state, state.pivot), state.rotation, thickness=4)
 
-    dt = time.time() - now
-
-    cv2.setWindowTitle(
-        state.WIN_NAME, "RealSense (%dx%d) %dFPS (%.2fms) %s" %
-        (w, h, 1.0/dt, dt*1000, "PAUSED" if state.paused else ""))
-
+    # Show pointcloud
+    cv2.setWindowTitle(state.WIN_NAME, "PointCloud Stream")
     cv2.imshow(state.WIN_NAME, out)
+    
+    # Save pointcloud every rate_of_saving frames (stream rate = 30 frames/sec)
+    if not state.paused:
+        if num_frames % rate_of_saving == 0:
+            points.export_to_ply(ply_file_path+ply_file_name.format(int(num_frames/rate_of_saving)), mapped_frame)
+            print(ply_file_name.format(int(num_frames/rate_of_saving)), 'was saved.')
+        num_frames += 1
     key = cv2.waitKey(1)
 
     if key == ord("r"):
         state.reset()
 
-    if key == ord("d"):
-        state.decimate = (state.decimate + 1) % 3
-        decimate.set_option(rs.option.filter_magnitude, 2 ** state.decimate)
-
-    if key == ord("z"):
-        state.scale ^= True
-
-    if key == ord("c"):
-        state.color ^= True
-
-    if key == ord("e"):
-        points.export_to_ply('pcl_data_1.ply', mapped_frame)
+    if key == ord("p"):
+        state.paused ^= True
 
     if key in (27, ord("q")) or cv2.getWindowProperty(state.WIN_NAME, cv2.WND_PROP_AUTOSIZE) < 0:
         break
