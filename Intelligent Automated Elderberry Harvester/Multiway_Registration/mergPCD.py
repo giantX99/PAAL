@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import open3d as o3d
+import ply_2_pcd
 
 # Visualize pointclouds before registration
 def draw_registration_result(source, target, transformation):
@@ -110,10 +111,18 @@ def mergePCD(image1_pcd, image2_pcd):
 
     return pcd_combined_down
 
+
+
+image1_pcd = o3d.io.read_point_cloud("C:/Users/gian-/OneDrive/Documentos/PAAL/Data_Test/pcd_test_3.pcd") #yellow
+image2_pcd = o3d.io.read_point_cloud("C:/Users/gian-/OneDrive/Documentos/PAAL/Data_Test/pcd_test_2.pcd") #blue
+
 '''
-main:
-    image1_pcd = o3d.io.read_point_cloud("pcd_data_3.pcd") #yellow
-    image2_pcd = o3d.io.read_point_cloud("pcd_data_2.pcd") #blue
-    pcd_combined  = mergePCD(image1_pcd, image2_pcd)
-    o3d.visualization.draw_geometries([pcd_combined])
+image1_pcd = ply_2_pcd.ply_2_pcd(image1_ply, 1)
+image2_pcd = ply_2_pcd.ply_2_pcd(image2_ply, 2)
 '''
+
+pcd_combined  = mergePCD(image1_pcd, image2_pcd)
+o3d.io.write_point_cloud("C:/Users/gian-/OneDrive/Documentos/PAAL/pcd_3_2.pcd", pcd_combined)
+print('pcd saved.')
+o3d.visualization.draw_geometries([pcd_combined])
+

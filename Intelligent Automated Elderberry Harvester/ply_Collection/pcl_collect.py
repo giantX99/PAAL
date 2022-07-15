@@ -29,9 +29,7 @@ pipeline = rs.pipeline()
 config = rs.config()
 
 pipeline_wrapper = rs.pipeline_wrapper(pipeline)
-pipeline_profile = config.resolve(pipeline_wrapper)
-device = pipeline_profile.get_device()
-
+config.resolve(pipeline_wrapper)
 
 config.enable_stream(rs.stream.depth, rs.format.z16, 30)
 config.enable_stream(rs.stream.color, rs.format.bgr8, 30)
@@ -178,7 +176,7 @@ while True:
     cv2.imshow(state.WIN_NAME, out)
     
     # Save pointcloud every rate_of_saving frames (stream rate = 30 frames/sec)
-    if not state.paused:
+    if state.paused:
         if num_frames % rate_of_saving == 0:
             points.export_to_ply(ply_file_path+ply_file_name.format(int(num_frames/rate_of_saving)), mapped_frame)
             print(ply_file_name.format(int(num_frames/rate_of_saving)), 'was saved.')
