@@ -1,5 +1,7 @@
 import pyrealsense2 as rs
 import time
+import sys
+
 '''
 class Pipeline:
     
@@ -42,34 +44,45 @@ if __name__ == '__main__':
     pipeline.stop()
 '''
 
-
-
 serial_num_1 = '203522252121' # Old camera d455 (Yellow)
 serial_num_2 = '213522252513' # New camera d455 (Green)
 
-# camera 1 (yellow):
+# camera 1:
 pipe_cam1 = rs.pipeline()
 config_cam1 = rs.config()
-config_cam1.enable_stream(rs.stream.depth, rs.format.z16, 30)
-config_cam1.enable_stream(rs.stream.color, rs.format.bgr8, 30)
-config_cam1.enable_record_to_file('cam1_test1.bag')
 config_cam1.enable_device(serial_num_1)
-
+config_cam1.enable_record_to_file('cam1_tmp.bag')
 
 # camera 2 (green):
 pipe_cam2 = rs.pipeline()
 config_cam2 = rs.config()
-config_cam2.enable_stream(rs.stream.depth, rs.format.z16, 30)
-config_cam2.enable_stream(rs.stream.color, rs.format.bgr8, 30)
-config_cam2.enable_record_to_file('cam2_test1.bag')
 config_cam2.enable_device(serial_num_2)
+config_cam2.enable_record_to_file('cam2_tmp.bag')
 
-pipe_prof1 = pipe_cam1.start(config_cam1)
-pipe_prof2 = pipe_cam2.start(config_cam2)
+frame_num = 1
 
-sensor1 = pipe_prof1.get_device().firs_depth_sensor()
-sensor1.set_option(rs.option.inter_cam_sync_mode, 0)
-sensor2 = pipe_prof2.get_device().firs_depth_sensor()
-sensor2.set_option(rs.option.inter_cam_sync_mode, 0)
+#start collection:
+choice = input('Press "enter" to collect bag file or "q" to quit.')
+if choice == 'q':
+    sys.exit()
 
-time.sleep(2)
+try:
+    start = time.time()
+    pipe_cam1.start(config_cam1)
+    end1 = time.time()
+    print('Camera 1 boot up time: ', end1-start)
+    pipe_cam2.start(config_cam2)
+    end2 = time.time()
+    print('Camera 2 boot up time: ', end2-end1)
+    
+    print('Colection started, press ^c to stop collection.')
+    while True:
+        frame_num += 1
+
+except KeyboardInterrupt:
+    pipe_cam1.stop()
+    pipe_cam2.stop()
+    now = time.time()
+    print('Time elapsed in seconds: ', now-start)
+    print('Number of frames collected: ', frame_num)
+    pass
