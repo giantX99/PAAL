@@ -1,5 +1,5 @@
-import shutil, time, pyrealsense2 as rs
-
+import pyrealsense2 as rs
+import time
 '''
 class Pipeline:
     
@@ -42,26 +42,32 @@ if __name__ == '__main__':
     pipeline.stop()
 '''
 
-#serial_num_1 = '203522252121' # Old camera d455 (Yellow)
+
+
+serial_num_1 = '203522252121' # Old camera d455 (Yellow)
 serial_num_2 = '213522252513' # New camera d455 (Green)
 
-# camera 1:
-#pipe_cam1 = rs.pipeline()
-#config_cam1 = rs.config()
-#config_cam1.enable_device(serial_num_1)
-#config_cam1.enable_record_to_file('tmp.bag')
+# camera 1 (yellow):
+pipe_cam1 = rs.pipeline()
+config_cam1 = rs.config()
+config_cam1.enable_stream(rs.stream.depth, rs.format.z16, 30)
+config_cam1.enable_stream(rs.stream.color, rs.format.bgr8, 30)
+config_cam1.enable_stream(rs.stream.infrared, 1, rs.format.y8, 30)
+config_cam1.enable_stream(rs.stream.infrared, 2, rs.format.y8, 30)
+config_cam1.enable_record_to_file('cam1_test1.bag')
+config_cam1.enable_device(serial_num_1)
+
 
 # camera 2 (green):
 pipe_cam2 = rs.pipeline()
 config_cam2 = rs.config()
+config_cam2.enable_stream(rs.stream.depth, rs.format.z16, 30)
+config_cam2.enable_stream(rs.stream.color, rs.format.bgr8, 30)
+config_cam2.enable_stream(rs.stream.infrared, 1, rs.format.y8, 30)
+config_cam2.enable_stream(rs.stream.infrared, 2, rs.format.y8, 30)
+config_cam2.enable_record_to_file('cam2_test1.bag')
 config_cam2.enable_device(serial_num_2)
-config_cam2.enable_record_to_file('tmp.bag')
 
-try:
-    while True:
-        pipe_cam2.start(config_cam2)
-
-except KeyboardInterrupt:
-    pipe_cam2.stop()
-    pass
-
+pipe_prof1 = pipe_cam1.start(config_cam1)
+pipe_prof2 = pipe_cam2.start(config_cam2)
+time.sleep(10)

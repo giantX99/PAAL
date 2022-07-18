@@ -1,9 +1,11 @@
+#TO HAVE A DOUBLE STREAM USB-3.0 IS NECESSARY!
+
 import pyrealsense2 as rs
 import numpy as np
 import cv2
 
-serial_num_1 = '203522252121' # Old camera d455
-serial_num_2 = '213522252513' # New camera d455
+serial_num_1 = '203522252121' # Old camera d455 yellow 203522252121
+serial_num_2 = '213522252513' # New camera d455 green 213522252513
 
 # camera 1:
 pipe_cam1 = rs.pipeline()
@@ -23,20 +25,21 @@ config_cam2.enable_stream(rs.stream.color, rs.format.bgr8, 30)
 pipe_cam1.start(config_cam1)
 pipe_cam2.start(config_cam2)
 
-i = 1
+
+#i = 1
 try:
     while True:
-        print('cycle number = %d' %(i))
-        i += 1
+        #print('cycle number = %d' %(i))
+        #i += 1
 
         # Camera 1:
         # Wait for a coherent pair of frames: depth and color
         frames_1 = pipe_cam1.wait_for_frames()
         depth_frame_1 = frames_1.get_depth_frame()
-        color_frame_1 = frames_1.get_color_frame()
+        #color_frame_1 = frames_1.get_color_frame()
         # Convert images to numpy arrays
         depth_img1 = np.asanyarray(depth_frame_1.get_data())
-        color_img1 = np.asanyarray(color_frame_1.get_data())
+        #color_img1 = np.asanyarray(color_frame_1.get_data())
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap_1 = cv2.applyColorMap(cv2.convertScaleAbs(depth_img1, alpha=0.03), cv2.COLORMAP_JET)
         
@@ -48,19 +51,19 @@ try:
             images1 = np.hstack((resized_rgb_img1, depth_colormap_1))
         else:
             images1 = np.hstack((color_img1, depth_colormap_1))
-
+        
 
         # Camera 2:
         # Wait for a coherent pair of frames: depth and color
         frames_2 = pipe_cam2.wait_for_frames()
         depth_frame_2 = frames_2.get_depth_frame()
-        color_frame_2 = frames_2.get_color_frame()
+        #color_frame_2 = frames_2.get_color_frame()
         # Convert images to numpy arrays
         depth_img2 = np.asanyarray(depth_frame_2.get_data())
-        color_img2 = np.asanyarray(color_frame_2.get_data())
+        #color_img2 = np.asanyarray(color_frame_2.get_data())
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap_2 = cv2.applyColorMap(cv2.convertScaleAbs(depth_img2, alpha=0.03), cv2.COLORMAP_JET)
-
+        
         # Stack all images 2 horizontally
         depth_colormap2_dim = depth_colormap_2.shape
         color_colormap2_dim = color_img2.shape
@@ -69,29 +72,29 @@ try:
             images2 = np.hstack((resized_rgb_img2, depth_colormap_2))
         else:
             images2 = np.hstack((color_img2, depth_colormap_2))
-
+        
         #images = np.hstack((images1, images2))
 
         # Show images from camera 1
         cv2.namedWindow('RealSense 1', cv2.WINDOW_NORMAL)
-        cv2.imshow('RealSense 1', images1)
+        cv2.imshow('RealSense 1', depth_colormap_1)
         
         # Show images from camera 2
         cv2.namedWindow('RealSense 2', cv2.WINDOW_NORMAL)
-        cv2.imshow('RealSense 2', images2)
+        cv2.imshow('RealSense 2', depth_colormap_2)
         
         key = cv2.waitKey(1)
 
         # Capture images and depth maps from both cameras by pressing 'c'
         if key == ord('c'):
-            cv2.imwrite("my_image_1.jpg",color_img1)
+            #cv2.imwrite("my_image_1.jpg",color_img1)
             cv2.imwrite("my_depth_1.jpg",depth_colormap_1)
-            cv2.imwrite("my_image_2.jpg",color_img2)
+            #cv2.imwrite("my_image_2.jpg",color_img2)
             cv2.imwrite("my_depth_2.jpg",depth_colormap_2)
             print("Save")
             break
             
-        # Exit program; BUG break is being called after first cycle, its like there's no if statement.
+        # Exit program; bug, break is being called after first cycle, its like there's no if statement.
         #if key == 27 or ord('q'): # key 27 = 'ESC'
         #    print('break was called')
         #    break
@@ -105,7 +108,7 @@ finally:
 i = 1
 try:
     while True:
-        print('cycle number = %d'%(i))
+        print('cycle number = ', i)
         i += 1
         # Camera 1
         # Wait for a coherent pair of frames: depth and color
