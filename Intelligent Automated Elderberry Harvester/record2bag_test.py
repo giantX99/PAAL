@@ -1,5 +1,4 @@
-import pyrealsense2.pyrealsense2 as rs
-import time
+import pyrealsense2 as rs
 
 serial_num_1 = '203522252121' # Old camera d455 (Yellow)
 serial_num_2 = '213522252513' # New camera d455 (Green)
@@ -38,14 +37,21 @@ print('recorder2 created, paused')
 
 try:
     print('while loop about to start, recording about to start!')
-    recorder1.resume()
-    recorder2.resume()
-    print('camera1 recording...')
-    print('camera2 recording...')
-    time.sleep(10)
+    
+    #print('camera1 recording...')
+    #print('camera2 recording...')
+    
+    i = 1
     while True:
-        frames1 = pipe_cam1.wait_for_frames()
-        frames2 = pipe_cam2.wait_for_frames()
+        recorder1.pause()
+        recorder2.pause()
+        pipe_cam1.wait_for_frames()
+        pipe_cam2.wait_for_frames()
+        recorder1.resume()
+        recorder2.resume()
+        print(i)
+        i += 1
+        
         
 
 finally: #KeyboardInterrupt: #^c
