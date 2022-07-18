@@ -36,10 +36,10 @@ try:
         # Wait for a coherent pair of frames: depth and color
         frames_1 = pipe_cam1.wait_for_frames()
         depth_frame_1 = frames_1.get_depth_frame()
-        #color_frame_1 = frames_1.get_color_frame()
+        color_frame_1 = frames_1.get_color_frame()
         # Convert images to numpy arrays
         depth_img1 = np.asanyarray(depth_frame_1.get_data())
-        #color_img1 = np.asanyarray(color_frame_1.get_data())
+        color_img1 = np.asanyarray(color_frame_1.get_data())
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap_1 = cv2.applyColorMap(cv2.convertScaleAbs(depth_img1, alpha=0.03), cv2.COLORMAP_JET)
         
@@ -57,10 +57,10 @@ try:
         # Wait for a coherent pair of frames: depth and color
         frames_2 = pipe_cam2.wait_for_frames()
         depth_frame_2 = frames_2.get_depth_frame()
-        #color_frame_2 = frames_2.get_color_frame()
+        color_frame_2 = frames_2.get_color_frame()
         # Convert images to numpy arrays
         depth_img2 = np.asanyarray(depth_frame_2.get_data())
-        #color_img2 = np.asanyarray(color_frame_2.get_data())
+        color_img2 = np.asanyarray(color_frame_2.get_data())
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap_2 = cv2.applyColorMap(cv2.convertScaleAbs(depth_img2, alpha=0.03), cv2.COLORMAP_JET)
         
