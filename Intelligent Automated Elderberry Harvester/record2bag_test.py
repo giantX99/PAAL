@@ -1,6 +1,6 @@
 import pyrealsense2 as rs
 import time
-import multiprocessing
+import threading
 
 serial_num_1 = '203522252121' # Old camera d455 (Yellow)
 serial_num_2 = '213522252513' # New camera d455 (Green)
@@ -46,16 +46,12 @@ cam2.query_sensors()[1].set_option(rs.option.auto_exposure_priority, 0.0)
 
 
 #define collecting frame process
-def wait_frames1():
-    pipe_cam1.wait_for_frames().keep()
-
-def wait_frames2():
-    pipe_cam2.wait_for_frames().keep()
-
+def wait_frames(pipeline):
+    pipeline.wait_for_frames().keep()
 
 try:
-    frames1 = multiprocessing.Process(target=wait_frames1)
-    frames2 = multiprocessing.Process(target=wait_frames2)
+    t_frames1 = threading.Thread(target=wait_frames, args=(pipe_cam1,))
+    t_frames2 = threading.Thread(target=wait_frames, args=(pipe_cam2,))
     print('while loop about to start, recording about to start!')
     recorder1.resume()
     print('camera1 recording...')
@@ -66,10 +62,10 @@ try:
     
     #Collect frames concurrently 
     while time.time() - start < 10:
-        frames1.start()
-        frames2.start()
-        frames1.join()
-        frames2.join()
+        t_frames1.start()
+        t_frames2.start()
+        t_frames1.join()
+        t_frames2.join()
       
 finally:
     recorder1.pause()
