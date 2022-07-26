@@ -57,7 +57,7 @@ serial_num_2 = '213522252513' # New camera d455 (Green)
 pipe_cam2 = rs.pipeline()
 config_cam2 = rs.config()
 config_cam2.enable_device(serial_num_2)
-config_cam2.enable_record_to_file('cam2_tmp.bag')
+config_cam2.enable_record_to_file('D:/cam2_test.bag')
 
 frame_num = 1
 
@@ -75,11 +75,11 @@ try:
     end2 = time.time()
     print('Camera 2 boot up time: ', end2-start)
     
-    print('Colection started, press ^c to stop collection.')
-    while True:
+    print('Colection started, 10s of collection.')
+    while time.time() - end2 < 10:
         frame_num += 1
 
-except KeyboardInterrupt:
+finally: #KeyboardInterrupt:
     #pipe_cam1.stop()
     pipe_cam2.stop()
     now = time.time()
