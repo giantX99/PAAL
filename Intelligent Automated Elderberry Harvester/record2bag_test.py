@@ -6,10 +6,11 @@ import shutil
 #Constants:
 serial_num_1 = '203522252121' # Old camera d455 (Yellow)
 serial_num_2 = '213522252513' # New camera d455 (Green)
-SSD_dir = '/Elderberry/'
+SSD_dir = 'D:/Test'
+cur_dir = 'C:/Users/gian-/OneDrive/Documentos/GitHub/PAAL/Intelligent Automated Elderberry Harvester'
 date = datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
-cam1_file_name = '{}_cam1.bag'.format(date)
-cam2_file_name = '{}_cam2.bag'.format(date)
+cam1_file_name = '{}/{}_cam1.bag'
+cam2_file_name = '{}/{}_cam2.bag'
 
 
 #PIPELINE SETUP:
@@ -17,17 +18,17 @@ cam2_file_name = '{}_cam2.bag'.format(date)
 pipe_cam1 = rs.pipeline()
 config_cam1 = rs.config()
 config_cam1.enable_device(serial_num_1)
-config_cam1.enable_stream(rs.stream.depth, 640, 480, rs.format.z16h, 15)
-config_cam1.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 15)
-config_cam1.enable_record_to_file(cam1_file_name)
+config_cam1.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 5)
+config_cam1.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 5)
+config_cam1.enable_record_to_file(cam1_file_name.format(cur_dir, date))
 
 # camera 2 (green):
 pipe_cam2 = rs.pipeline()
 config_cam2 = rs.config()
 config_cam2.enable_device(serial_num_2)
-config_cam2.enable_stream(rs.stream.depth, 640, 480, rs.format.z16h, 15)
-config_cam2.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 15)
-config_cam2.enable_record_to_file(cam2_file_name)
+config_cam2.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 5)
+config_cam2.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 5)
+config_cam2.enable_record_to_file(cam2_file_name.format(cur_dir, date))
 
 #Pipe profiles by pipe.start():
 pipe_prof1 = pipe_cam1.start(config_cam1)
@@ -60,7 +61,7 @@ try:
     start1 = time.time()
     
     #Collect frames concurrently 
-    while time.time() - start1 < 10:
+    while time.time() - start1 < 2:
         pipe_cam1.wait_for_frames().keep()
         pipe_cam2.wait_for_frames().keep()
 
@@ -72,9 +73,10 @@ finally:
     pipe_cam1.stop()
     pipe_cam2.stop()
     print('Recording Stopped! Recording duration: ', end1-start1)
+    #Transfer file to SSD
     print('Transfering files to SSD...')
     start2 = time.time()
-    shutil.move(cam1_file_name, SSD_dir)
-    shutil.move(cam2_file_name, SSD_dir)
+    shutil.move(cam1_file_name.format(cur_dir, date), cam1_file_name.format(SSD_dir, date)) #Source file must have same name as destination file!!
+    shutil.move(cam2_file_name.format(cur_dir, date), cam2_file_name.format(SSD_dir, date))
     end2 = time.time()
     print('Files transfered! Transfering duration: ', end2-start2)

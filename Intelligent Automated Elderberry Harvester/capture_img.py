@@ -21,6 +21,21 @@ rgb_file_name = 'color_test_{}.png'
 depth_file_name = 'depth_test_{}.png'
 
 try:
+    '''
+    frames = pipeline.wait_for_frames()
+    depth_frame = frames.get_depth_frame()
+    rgb_frame = frames.get_color_frame()
+    depth_map = np.asanyarray(depth_frame.get_data())
+    rgb_img = np.asanyarray(rgb_frame.get_data())
+
+    print('depth frame type: ', type(depth_frame))
+    print('depth data type: ', type(depth_frame.get_data()))
+    print('depth map type: ', type(depth_map))
+    print('rgb frame type: ', type(rgb_frame))
+    print('rgb data type: ', type(rgb_frame.get_data()))
+    print('rgb image type: ', type(rgb_img))
+    print('\ndepth map array:\n', depth_map)
+    '''
     while True:
         # Get frames
         frames = pipeline.wait_for_frames()
@@ -57,6 +72,8 @@ try:
         # Exit program
         if key == 27: # key 27 = 'ESC'
             break
+    
 finally:
     # Stop stream
     pipeline.stop()
+    
