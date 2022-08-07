@@ -1,7 +1,6 @@
 import copy
 import numpy as np
 import open3d as o3d
-#import ply_2_pcd
 
 # Visualize pointclouds before registration
 def draw_registration_result(source, target, transformation):
@@ -14,7 +13,7 @@ def draw_registration_result(source, target, transformation):
 
 # Registration initialization
 def pairwise_registration(source, target):
-    voxel_size = 0.05
+    voxel_size = 0.02
     max_correspondence_distance_coarse = voxel_size * 15
     max_correspondence_distance_fine = voxel_size * 1.5
     print("Apply point-to-plane ICP")
@@ -111,29 +110,25 @@ def mergePCD(image1_pcd, image2_pcd):
 
     return pcd_combined_down
 
+pos = input('Enter position desired: ')
+dir = 'C:/Users/gian-/OneDrive/Documentos/PAAL/Field_DATA'
 
-#image1_pcd = o3d.io.read_point_cloud("C:/Users/gian-/OneDrive/Documentos/PAAL/Data_Test/pcd_test_3.pcd") #yellow
-#image2_pcd = o3d.io.read_point_cloud("C:/Users/gian-/OneDrive/Documentos/PAAL/Data_Test/pcd_test_2.pcd") #blue
+ply_file1 = "{}/pos{}_cam1.ply" #yellow
+ply_file2 = "{}/pos{}_cam2.ply" #blue
 
-ply_file1 = "D:/Test/lab_test_angles/120/1_cam1.ply" #yellow
-ply_file2 = "D:/Test/lab_test_angles/120/1_cam2.ply" #blue
+pcd_file_name1 = "{}/pos{}_cam1.pcd"
+pcd_file_name2 = "{}/pos{}_cam2.pcd"
 
-pcd_file_name1 = "D:/Test/lab_test_angles/120/1_cam1.pcd"
-pcd_file_name2 = "D:/Test/lab_test_angles/120/1_cam2.pcd"
+registered_pcd = '{}/pos{}_registeredPCD.pcd'
 
-global_pcd_1 = 'D:/Test/lab_test_angles/120/1_globalPCD.pcd'
+ply1 = o3d.io.read_point_cloud(ply_file1.format(dir, pos))
+o3d.io.write_point_cloud(pcd_file_name1.format(dir, pos), ply1)
+ply2 = o3d.io.read_point_cloud(ply_file2.format(dir, pos))
+o3d.io.write_point_cloud(pcd_file_name2.format(dir, pos), ply2)
 
-ply1 = o3d.io.read_point_cloud(ply_file1)
-o3d.io.write_point_cloud(pcd_file_name1, ply1)
+pcd1 = o3d.io.read_point_cloud(pcd_file_name1.format(dir, pos))
+pcd2 = o3d.io.read_point_cloud(pcd_file_name2.format(dir, pos))
 
-ply2 = o3d.io.read_point_cloud(ply_file2)
-o3d.io.write_point_cloud(pcd_file_name2, ply2)
-
-pcd1 = o3d.io.read_point_cloud(pcd_file_name1)
-pcd2 = o3d.io.read_point_cloud(pcd_file_name2)
-
-pcd_combined  = mergePCD(pcd1, pcd2)
-o3d.io.write_point_cloud(global_pcd_1, pcd_combined)
-print('pcd saved.')
-o3d.visualization.draw_geometries([pcd_combined])
-
+pcd_combined  = mergePCD(pcd2, pcd1)
+o3d.io.write_point_cloud(registered_pcd.format(dir, pos), pcd_combined)
+print('Registration saved.')

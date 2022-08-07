@@ -1,9 +1,9 @@
 import open3d as o3d
-import os
+#import os
 
-def ply_2_pcd(ply_file, file_num):
+def ply_2_pcd(ply_file, file_destination):
     ply = o3d.io.read_point_cloud(ply_file)
-    pcd_file_name = 'pcd_data_{}.pcd'.format(file_num)
+    pcd_file_name = file_destination + 'pcd.bag'
     o3d.io.write_point_cloud(pcd_file_name, ply)
     print(pcd_file_name, 'saved.')
 
