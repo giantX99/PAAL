@@ -29,7 +29,7 @@ config_cam2 = rs.config()
 config_cam2.enable_device(serial_num_2)
 config_cam2.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 5)
 config_cam2.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 5)
-#test
+
 try:
     #Pipe profiles by pipe.start():
     pipe_prof1 = pipe_cam1.start(config_cam1)
