@@ -2,8 +2,6 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 
-#C:/Users/gian-/OneDrive/Documentos/PAAL/field_08_08_22/row1_1_cam1_11.bag
-
 def extract_rgb_from_bag(bag_file, rgb_file_name):   
     pipeline = rs.pipeline()
     config = rs.config()
@@ -29,10 +27,11 @@ def extract_rgb_from_bag(bag_file, rgb_file_name):
         break
     pipeline.stop()
 
-bag_path = 'C:/Users/gian-/OneDrive/Documentos/PAAL/field_08_08_22/'
-rgb_path = 'C:/Users/gian-/OneDrive/Documentos/PAAL/rgb_extracted_field_08_08_22/'
+bag_path = 'D:/field_08_18_22/row4/'
+rgb_path = 'D:/field_08_18_22/rgb_extracted/'
+total_frames = 245
 
-for counter in range(1, 106):
-    bag_file = bag_path + 'row1_frame' + str(counter) + '.bag'
-    rgb_file_name = rgb_path + 'row1_rgb_' + str(counter) + '.png'
+for counter in range(1, total_frames+1):
+    bag_file = bag_path + 'row4_frame' + str(counter) + '.bag'
+    rgb_file_name = rgb_path + 'row4_rgb_' + str(counter) + '.jpg'
     extract_rgb_from_bag(bag_file, rgb_file_name)
