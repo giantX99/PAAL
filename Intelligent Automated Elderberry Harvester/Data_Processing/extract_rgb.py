@@ -27,11 +27,11 @@ def extract_rgb_from_bag(bag_file, rgb_file_name):
         break
     pipeline.stop()
 
-bag_path = 'D:/field_08_18_22/row4/'
-rgb_path = 'D:/field_08_18_22/rgb_extracted/'
-total_frames = 245
+bag_path = 'D:/field_08_26_22/row3/'
+rgb_path = 'D:/field_08_26_22/rgb_extracted/'
+total_frames = 101
 
 for counter in range(1, total_frames+1):
-    bag_file = bag_path + 'row4_frame' + str(counter) + '.bag'
-    rgb_file_name = rgb_path + 'row4_rgb_' + str(counter) + '.jpg'
+    bag_file = bag_path + 'row3_frame' + str(counter) + '.bag'
+    rgb_file_name = rgb_path + 'row10_rgb_' + str(counter) + '.jpg'
     extract_rgb_from_bag(bag_file, rgb_file_name)
