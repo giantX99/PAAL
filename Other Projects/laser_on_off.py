@@ -5,7 +5,6 @@ pipeline_profile = pipeline.start(config)
 device = pipeline_profile.get_device()
 depth_sensor = device.query_sensors()[0]
 emitter = depth_sensor.set_option(rs.option.emitter_on_off, 1)
-print("emitter = ", emitter)
 
 '''
 set_emitter = 0
