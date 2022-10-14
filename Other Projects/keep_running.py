@@ -44,8 +44,6 @@ while True:
 
     # Start streaming
     pipeline.start(config)
-    align_to = rs.stream.depth
-    align = rs.align(align_to)
     time.sleep(1) # Camera warmup
     start = time.time()
     print('cycle start')
@@ -53,9 +51,9 @@ while True:
     while time.time()-start <= active:
         # Wait for frames without laser: depth and infrared
         frames = pipeline.wait_for_frames()
-        aligned_frames = align.process(frames)
-        depth_frame = aligned_frames.get_depth_frame()
-        ir1_frame = aligned_frames.get_infrared_frame(1)
+        frames.keep()
+        depth_frame = frames.get_depth_frame()
+        ir1_frame = frames.get_infrared_frame(1)
         
         # Apply Depth filter to reduce noise:
         depth_filtered = dec_filter.process(depth_frame)
@@ -90,15 +88,6 @@ while True:
         
     # Stop streaming
     pipeline.stop()
-    '''
-    ir_compare = ir_frame_list
-    ir_compare.pop()
-    ir_compare.insert(1, 0)
-    ir_subtracted = []
-    for i1, i2 in zip(ir_frame_list, ir_compare):
-        ir_subtracted.append(i1-i2)
-    print(ir_subtracted)
-    '''
     # Save images
     date_time = time.strftime('%H_%M_%S_')
     i = 1
