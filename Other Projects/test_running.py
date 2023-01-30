@@ -18,7 +18,7 @@ config.enable_stream(rs.stream.infrared, 1, 848, 480, rs.format.y8, 5) #Left IR 
 
 device = pipeline_profile.get_device()
 depth_sensor = device.query_sensors()[0]
-depth_sensor.set_option(rs.option.emitter_on_off, 0) #Set laser to turn on and off every other frame
+depth_sensor.set_option(rs.option.emitter_on_off, 1) #Set laser to turn on and off every other frame
 #depth_sensor.set_option(rs.option.auto_exposure_priority, 1) #Set priority to auto exposure
 
 spat_filter = rs.spatial_filter()   # Spatial    - edge-preserving spatial smoothing
@@ -30,7 +30,8 @@ while True:
     #loop_s = time.time()
     start = time.time()
     d_frame_list = []
-    depth_sensor.set_option(rs.option.emitter_enabled, 0)
+    laser_on = rs.frame_metadata_value.frame_laser_power_mode
+    #depth_sensor.set_option(rs.option.emitter_enabled, 0)
 
     # Start streaming
     pipe_s = time.time()
@@ -40,10 +41,9 @@ while True:
     align = rs.align(align_to)
     #time.sleep(1) # Camera warmup
     
+    i=0 
     frames = pipeline.wait_for_frames()
-    #if not frames:
-    #    pipeline.stop()
-    #    continue
+    #if frames.get_frame_metadata(laser_on):   
     frames = align.process(frames)
     ir1_frame = frames.get_infrared_frame(1)
     ir1_image = np.asanyarray(ir1_frame.get_data())

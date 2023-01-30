@@ -8,6 +8,7 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+import time
 
 # Configure depth and color streams
 pipeline = rs.pipeline()
@@ -28,25 +29,35 @@ if not found_rgb:
     print("The demo requires Depth camera with Color sensor")
     exit(0)
 
-config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 5)
 
 if device_product_line == 'L500':
-    config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 5)
 else:
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.infrared, 1280, 720, rs.format.y8, 5)
 
-# Start streaming
-pipeline.start(config)
 
-try:
-    while True:
+#try:
+while True:
+    d_list = []
+
+    before = time.time()
+    # Start streaming
+    pipeline.start(config)
+    print('pipeline.start duration = ', time.time()-before)
+    #align_to = rs.stream.depth
+    #align = rs.align(align_to)
+
+    while time.time() - before <= 4:
 
         # Wait for a coherent pair of frames: depth and color
         frames = pipeline.wait_for_frames()
+        #frames = align.process(frames)
         depth_frame = frames.get_depth_frame()
         color_frame = frames.get_color_frame()
-        if not depth_frame or not color_frame:
-            continue
+        #if not depth_frame or not color_frame:
+        #    print('not depth or not color')
+        #    continue
 
         # Convert images to numpy arrays
         depth_image = np.asanyarray(depth_frame.get_data())
@@ -55,22 +66,30 @@ try:
         # Apply colormap on depth image (image must be converted to 8-bit per pixel first)
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
-        depth_colormap_dim = depth_colormap.shape
-        color_colormap_dim = color_image.shape
+        d_list.append(depth_colormap)
+        #d_list.append(color_image)
+
+        #depth_colormap_dim = depth_colormap.shape
+        #color_colormap_dim = color_image.shape
 
         # If depth and color resolutions are different, resize color image to match depth image for display
-        if depth_colormap_dim != color_colormap_dim:
-            resized_color_image = cv2.resize(color_image, dsize=(depth_colormap_dim[1], depth_colormap_dim[0]), interpolation=cv2.INTER_AREA)
-            images = np.hstack((resized_color_image, depth_colormap))
-        else:
-            images = np.hstack((color_image, depth_colormap))
+        #if depth_colormap_dim != color_colormap_dim:
+        #    resized_color_image = cv2.resize(color_image, dsize=(depth_colormap_dim[1], depth_colormap_dim[0]), interpolation=cv2.INTER_AREA)
+        #    images = np.hstack((resized_color_image, depth_colormap))
+        #else:
+        #images = np.hstack((color_image, depth_colormap))
 
         # Show images
         cv2.namedWindow('RealSense', cv2.WINDOW_AUTOSIZE)
-        cv2.imshow('RealSense', images)
+        cv2.imshow('RealSense', depth_colormap)
         cv2.waitKey(1)
+    #finally:
 
-finally:
-
+    start = time.time()
     # Stop streaming
     pipeline.stop()
+    print('pipeline.stop duration = ', time.time()-start)
+    i=1
+    for img in d_list:
+        cv2.imwrite(str(i) + 'depth.jpg', img)
+        i += 1
