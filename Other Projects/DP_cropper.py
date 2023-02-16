@@ -6,6 +6,8 @@ import moviepy.video.fx.all as vfx
 original_width = 848
 original_height = 480
 half_width = original_width/2
+
+#SPECIFY CORRECT FOLDERS
 folder = 'E:/farrow_data/DP/'
 saving_path = 'E:/farrow_data/DP_R/'
 
