@@ -19,8 +19,8 @@ for file in os.listdir(folder):
         original_clip = mp.VideoFileClip(folder + file)
 
         #ADJUST FRAMES NAME:
-        original_clip.save_frame(saved_frames_path + 'Rfirst_frame_' + file, t=1)
-        original_clip.save_frame(saved_frames_path + 'Rlast_frame' + file, t=20)
+        original_clip.save_frame(saved_frames_path + 'RFirst_frame_' + file, t=1)
+        original_clip.save_frame(saved_frames_path + 'RLast_frame' + file, t=20)
 
         left_clip = vfx.crop(original_clip, x1=0, y1=0, width=half_width, height=original_height)
         right_clip = vfx.crop(original_clip, x1=half_width, y1=0, width=half_width, height=original_height)
